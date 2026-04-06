@@ -25,7 +25,6 @@ export function useFormState() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showLineQR, setShowLineQR] = useState(false);
 
   const needsAddress = data.attendance.some((key) =>
     CEREMONY_KEYS.includes(key)
@@ -115,8 +114,6 @@ export function useFormState() {
         throw new Error("送信に失敗しました");
       }
 
-      const result = await res.json();
-      setShowLineQR(result.showLineQR ?? false);
       setIsSubmitted(true);
     } catch {
       setErrors({
@@ -132,7 +129,6 @@ export function useFormState() {
     errors,
     isSubmitting,
     isSubmitted,
-    showLineQR,
     needsAddress,
     updateField,
     toggleAttendance,

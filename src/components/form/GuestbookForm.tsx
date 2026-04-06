@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import { SectionHeading } from "../SectionHeading";
 import { FadeInOnScroll } from "../FadeInOnScroll";
 import { Button } from "../Button";
@@ -43,7 +42,6 @@ function GuestbookFormInner() {
     errors,
     isSubmitting,
     isSubmitted,
-    showLineQR,
     needsAddress,
     updateField,
     toggleAttendance,
@@ -74,36 +72,45 @@ function GuestbookFormInner() {
             </p>
           </div>
 
-          {showLineQR && (
-            <div className="mt-8 animate-fade-in [animation-delay:300ms]">
+          <div className="mt-8 animate-fade-in [animation-delay:300ms]">
+            {new Date() < new Date("2026-04-08T00:00:00+09:00") ? (
+              <>
+                <p className="font-klee text-[15px] text-text">
+                  自宅の場所は LINE でお伝えします。
+                </p>
+                <p className="mt-1 text-[13px] text-sub">
+                  以下より友だち追加のうえ、お名前をお送りください。
+                </p>
+              </>
+            ) : (
               <p className="font-klee text-[15px] text-text">
-                自宅の場所は LINE でお伝えします。
+                通夜・告別式の後に弔問いただける場合は
+                <br />
+                下記よりご連絡頂けますと幸いです。
               </p>
-              <p className="mt-1 text-[13px] text-sub">
-                以下より友だち追加のうえ、お名前をお送りください。
-              </p>
-              <div className="mt-5 inline-block overflow-hidden rounded-[4px] border border-border">
-                <Image
-                  src="/qr-line.png"
-                  alt="LINE 友だち追加 QR コード"
-                  width={180}
-                  height={180}
-                  className="block"
-                />
-              </div>
-              <div className="mt-5">
-                <a
-                  href={process.env.NEXT_PUBLIC_LINE_ADD_URL ?? "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="primary" type="button">
-                    LINE で友だち追加する
-                  </Button>
-                </a>
-              </div>
+            )}
+            <div className="mt-5 inline-block overflow-hidden rounded-[4px] border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/photos/S__65290305.webp"
+                alt="LINE 友だち追加 QR コード"
+                width={180}
+                height={180}
+                className="block"
+              />
             </div>
-          )}
+            <div className="mt-5">
+              <a
+                href="https://line.me/ti/p/fJK6IEX5zU"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="primary" type="button">
+                  LINE で友だち追加する
+                </Button>
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     );

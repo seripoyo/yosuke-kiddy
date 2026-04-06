@@ -217,9 +217,7 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Response ---
-    const showLineQR = attendance.includes("incense_home");
-
-    return NextResponse.json({ success: true, showLineQR });
+    return NextResponse.json({ success: true, showLineQR: true });
   } catch (err) {
     console.error("Submit API error:", err);
     return NextResponse.json(

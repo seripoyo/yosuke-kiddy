@@ -52,7 +52,7 @@ export function Hero() {
       </div>
 
       {/* Right — photo with max-width constraint */}
-      <div className="relative min-w-0 flex-1 pt-8 pr-3 md:w-[70%] md:flex-none md:pr-0 md:pt-8">
+      <div className="relative min-w-0 flex-1 pt-8 md:w-[70%] md:flex-none md:pt-8">
         <div className="relative h-full w-full overflow-hidden md:ml-0">
           <HeroPhoto />
         </div>
