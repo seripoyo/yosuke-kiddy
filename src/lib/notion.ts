@@ -15,6 +15,11 @@ function getDatabaseId(): string {
   return id;
 }
 
+function getDataSourceId(): string {
+  // SDK v5 uses a separate data_source_id for queries
+  return process.env.NOTION_DATA_SOURCE_ID ?? getDatabaseId();
+}
+
 type GuestbookEntry = {
   name: string;
   attendance: string[];
@@ -44,10 +49,10 @@ export async function createGuestbookEntry(
   entry: GuestbookEntry
 ): Promise<string> {
   const properties: Record<string, unknown> = {
-    名前: {
+    ご芳名: {
       title: [{ type: "text", text: { content: entry.name } }],
     },
-    参列希望: {
+    "参列のご希望": {
       multi_select: entry.attendance.map((a) => ({ name: a })),
     },
     送信日: {
@@ -65,25 +70,25 @@ export async function createGuestbookEntry(
     const fullAddress = entry.building
       ? `${entry.address} ${entry.building}`
       : entry.address;
-    properties["住所"] = {
+    properties["ご住所"] = {
       rich_text: [{ type: "text", text: { content: fullAddress } }],
     };
   }
 
   if (entry.relation) {
-    properties["関係"] = {
+    properties["陽介とのご関係"] = {
       rich_text: [{ type: "text", text: { content: entry.relation } }],
     };
   }
 
   if (entry.nickname) {
-    properties["あだ名"] = {
+    properties["陽介から呼ばれていたあだ名"] = {
       rich_text: [{ type: "text", text: { content: entry.nickname } }],
     };
   }
 
   if (entry.message) {
-    properties["メッセージ"] = {
+    properties["陽介へのメッセージ"] = {
       rich_text: splitRichText(entry.message),
     };
   }
@@ -133,7 +138,7 @@ export async function fetchAllMessages(): Promise<NotionMessage[]> {
 
   do {
     const response = await getNotion().dataSources.query({
-      data_source_id: getDatabaseId(),
+      data_source_id: getDataSourceId(),
       sorts: [{ property: "送信日", direction: "descending" }],
       start_cursor: cursor,
     });
@@ -142,10 +147,10 @@ export async function fetchAllMessages(): Promise<NotionMessage[]> {
       if (!("properties" in page)) continue;
       const props = page.properties as Record<string, Record<string, unknown>>;
 
-      const titleProp = props["名前"] as {
+      const titleProp = props["ご芳名"] as {
         title?: { plain_text: string }[];
       };
-      const attendanceProp = props["参列希望"] as {
+      const attendanceProp = props["参列のご希望"] as {
         multi_select?: { name: string }[];
       };
       const dateProp = props["送信日"] as {
@@ -163,19 +168,19 @@ export async function fetchAllMessages(): Promise<NotionMessage[]> {
             ?.rich_text
         ),
         address: extractPlainText(
-          (props["住所"] as { rich_text?: { plain_text: string }[] })
+          (props["ご住所"] as { rich_text?: { plain_text: string }[] })
             ?.rich_text
         ),
         relation: extractPlainText(
-          (props["関係"] as { rich_text?: { plain_text: string }[] })
+          (props["陽介とのご関係"] as { rich_text?: { plain_text: string }[] })
             ?.rich_text
         ),
         nickname: extractPlainText(
-          (props["あだ名"] as { rich_text?: { plain_text: string }[] })
+          (props["陽介から呼ばれていたあだ名"] as { rich_text?: { plain_text: string }[] })
             ?.rich_text
         ),
         message: extractPlainText(
-          (props["メッセージ"] as { rich_text?: { plain_text: string }[] })
+          (props["陽介へのメッセージ"] as { rich_text?: { plain_text: string }[] })
             ?.rich_text
         ),
         photoUrls: extractPlainText(

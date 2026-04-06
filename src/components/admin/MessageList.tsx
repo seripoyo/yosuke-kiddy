@@ -57,10 +57,12 @@ export function MessageList() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {messages.map((msg) => (
-          <MessageCard key={msg.id} msg={msg} />
-        ))}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {messages
+          .filter((msg) => msg.name && (msg.relation || msg.message || msg.photoUrls.length > 0))
+          .map((msg) => (
+            <MessageCard key={msg.id} msg={msg} />
+          ))}
       </div>
 
       {messages.length === 0 && (
