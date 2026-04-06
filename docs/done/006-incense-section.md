@@ -12,7 +12,7 @@
 
 ### IncenseInfo コンポーネント
 
-- [x] SectionHeading: `HOME INCENSE` / `ご自宅での焼香について`
+- [x] SectionHeading: `HOME INCENSE` / `自宅での焼香について`
 - [x] 案内テキスト表示
   - 4月8日のみ対応
   - LINE でのご連絡が必要

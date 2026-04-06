@@ -31,7 +31,12 @@ export async function uploadPhoto(
 ): Promise<string> {
   const timestamp = Date.now();
   const random = randomBytes(6).toString("hex");
-  const ext = filename.includes(".") ? filename.split(".").pop() : "jpg";
+  const ALLOWED_EXTENSIONS: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+  const ext = ALLOWED_EXTENSIONS[contentType] ?? "jpg";
   const key = `photos/${timestamp}-${random}.${ext}`;
 
   await getS3().send(
