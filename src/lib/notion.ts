@@ -1,7 +1,19 @@
 import { Client } from "@notionhq/client";
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const databaseId = process.env.NOTION_DATABASE_ID!;
+let _notion: Client | null = null;
+
+function getNotion(): Client {
+  if (!_notion) {
+    _notion = new Client({ auth: process.env.NOTION_API_KEY });
+  }
+  return _notion;
+}
+
+function getDatabaseId(): string {
+  const id = process.env.NOTION_DATABASE_ID;
+  if (!id) throw new Error("NOTION_DATABASE_ID is not set");
+  return id;
+}
 
 type GuestbookEntry = {
   name: string;
@@ -84,10 +96,11 @@ export async function createGuestbookEntry(
     };
   }
 
-  const page = await notion.pages.create({
-    parent: { database_id: databaseId },
+  const client = getNotion();
+  const page = await client.pages.create({
+    parent: { database_id: getDatabaseId() },
     properties: properties as Parameters<
-      typeof notion.pages.create
+      typeof client.pages.create
     >[0]["properties"],
   });
 
@@ -119,8 +132,8 @@ export async function fetchAllMessages(): Promise<NotionMessage[]> {
   let cursor: string | undefined;
 
   do {
-    const response = await notion.databases.query({
-      database_id: databaseId,
+    const response = await getNotion().dataSources.query({
+      data_source_id: getDatabaseId(),
       sorts: [{ property: "送信日", direction: "descending" }],
       start_cursor: cursor,
     });

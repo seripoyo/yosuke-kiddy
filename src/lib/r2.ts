@@ -4,17 +4,21 @@ import {
 } from "@aws-sdk/client-s3";
 import { randomBytes } from "crypto";
 
-const s3 = new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+let _s3: S3Client | null = null;
 
-const bucketName = process.env.R2_BUCKET_NAME!;
-const publicUrl = process.env.R2_PUBLIC_URL!;
+function getS3(): S3Client {
+  if (!_s3) {
+    _s3 = new S3Client({
+      region: "auto",
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
+    });
+  }
+  return _s3;
+}
 
 /**
  * Upload a photo to Cloudflare R2.
@@ -30,9 +34,9 @@ export async function uploadPhoto(
   const ext = filename.includes(".") ? filename.split(".").pop() : "jpg";
   const key = `photos/${timestamp}-${random}.${ext}`;
 
-  await s3.send(
+  await getS3().send(
     new PutObjectCommand({
-      Bucket: bucketName,
+      Bucket: process.env.R2_BUCKET_NAME!,
       Key: key,
       Body: file,
       ContentType: contentType,
@@ -40,6 +44,7 @@ export async function uploadPhoto(
   );
 
   // Construct public URL (trailing slash normalized)
-  const base = publicUrl.endsWith("/") ? publicUrl : `${publicUrl}/`;
+  const url = process.env.R2_PUBLIC_URL!;
+  const base = url.endsWith("/") ? url : `${url}/`;
   return `${base}${key}`;
 }

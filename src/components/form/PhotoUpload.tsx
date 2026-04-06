@@ -138,14 +138,23 @@ export function PhotoUpload({ photos, onChange }: Props) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const addFiles = useCallback(
     async (fileList: FileList | File[]) => {
       setError(null);
       const files = Array.from(fileList);
 
-      // Check total count
-      const currentCount = items.length;
+      // Use functional update to get current count
+      let currentCount = 0;
+      setItems((prev) => {
+        currentCount = prev.length;
+        return prev;
+      });
+
       if (currentCount + files.length > MAX_FILES) {
         setError(`写真は最大${MAX_FILES}枚までです。あと${MAX_FILES - currentCount}枚追加できます。`);
         return;
@@ -191,7 +200,7 @@ export function PhotoUpload({ photos, onChange }: Props) {
       setItems((prev) => [...prev, ...newItems]);
 
       // Process each file asynchronously
-      const processedFiles: File[] = [...photos];
+      const processedFiles: File[] = [...photosRef.current];
 
       for (const item of newItems) {
         try {
@@ -222,9 +231,9 @@ export function PhotoUpload({ photos, onChange }: Props) {
         }
       }
 
-      onChange(processedFiles);
+      onChangeRef.current(processedFiles);
     },
-    [items, photos, onChange]
+    [] // No dependencies needed — uses refs for latest values
   );
 
   const removePhoto = useCallback(
@@ -238,12 +247,12 @@ export function PhotoUpload({ photos, onChange }: Props) {
         const remainingFiles = next
           .filter((p) => p.status === "ready")
           .map((p) => p.file);
-        onChange(remainingFiles);
+        onChangeRef.current(remainingFiles);
         return next;
       });
       setError(null);
     },
-    [onChange]
+    []
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {

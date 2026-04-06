@@ -6,6 +6,7 @@ type NotificationData = {
   nickname?: string;
   message?: string;
   photoCount: number;
+  photoUrls?: string[];
   notionPageId?: string;
 };
 
@@ -37,6 +38,11 @@ export async function sendNotification(data: NotificationData): Promise<void> {
 
   if (data.notionPageId) {
     content += `\n\n[Notion で確認](https://notion.so/${data.notionPageId.replace(/-/g, "")})`;
+  }
+
+  // Append photo URLs so Discord can show image previews
+  if (data.photoUrls && data.photoUrls.length > 0) {
+    content += "\n\n" + data.photoUrls.join("\n");
   }
 
   try {

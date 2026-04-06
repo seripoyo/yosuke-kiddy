@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { FormField } from "./FormField";
 import { PostalCodeInput } from "./PostalCodeInput";
 import { TextInput } from "./TextInput";
@@ -84,6 +84,7 @@ export function AddressAutocomplete({
   const autocompleteElementRef =
     useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
   const isInitializedRef = useRef(false);
+  const [isPlacesReady, setIsPlacesReady] = useState(false);
   const zipcloudStatusRef = useRef<"idle" | "loading" | "error">("idle");
   const onAddressChangeRef = useRef(onAddressChange);
   onAddressChangeRef.current = onAddressChange;
@@ -149,6 +150,7 @@ export function AddressAutocomplete({
       container.appendChild(autocomplete);
       autocompleteElementRef.current = autocomplete;
       isInitializedRef.current = true;
+      setIsPlacesReady(true);
 
       // If address already has a value, set it on the input
       if (address) {
@@ -253,7 +255,7 @@ export function AddressAutocomplete({
           className="address-autocomplete-container"
         />
         {/* Fallback: show a regular input if Google Maps is not available */}
-        {!isInitializedRef.current && (
+        {!isPlacesReady && (
           <TextInput
             id="address"
             value={address}
