@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* === Brand Colors === */
+  --color-base: #F0F0F0;
+  --color-text: #484848;
+  --color-text-heading: #1A1A1A;
+  --color-sub: #636363;
+  --color-sub-heading: #6B6B6B;
+  --color-accent: #C2185B;
+  --color-pressed: #a06a8c;
+  --color-card: #d2d2d2;
+  --color-card-admin: #FAFAFA;
+  --color-divider: #bea0b0;
+  --color-border: #E5E5E5;
+  --color-error-border: #C62828;
+
+  /* === Semantic Colors === */
+  --color-success: #93b08c;
+  --color-error: #e1d7bb;
+  --color-warning: #be8c8c;
+  --color-info: #a2b7be;
+  --color-semantic-text: #404040;
+
+  /* === Spacing Scale (4px base) === */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+  --spacing-20: 80px;
+  --spacing-30: 120px;
+
+  /* === Font Families === */
+  --font-mincho: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+  --font-klee: "Klee One", serif;
+  --font-cormorant: "Cormorant Garamond", serif;
+}
+
+:root {
+  color-scheme: light only;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #F0F0F0;
+  color: #484848;
+  font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.8;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:/Users/seri/0.開発/yosuke-kiddy/docs/self-task\")",
+      "Bash(mkdir -p \"C:/Users/seri/0.開発/yosuke-kiddy/docs/task\")",
+      "Bash(npm run:*)"
+    ]
+  }
+}
