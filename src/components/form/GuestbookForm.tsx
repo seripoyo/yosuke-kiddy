@@ -7,6 +7,7 @@ import { FormField } from "./FormField";
 import { TextInput } from "./TextInput";
 import { Checkbox } from "./Checkbox";
 import { AddressAutocomplete } from "./AddressAutocomplete";
+import { PhotoUpload } from "./PhotoUpload";
 import { useFormState } from "./useFormState";
 import { ATTENDANCE_OPTIONS } from "./types";
 
@@ -62,7 +63,7 @@ function GuestbookFormInner() {
             {showLineQR && (
               <div className="mt-6">
                 <p className="text-[14px] text-sub">
-                  ご自宅の場所はLINEでお伝えします。
+                  自宅の場所はLINEでお伝えします。
                 </p>
                 {/* LINE QR / リンクはチケット012で実装 */}
               </div>
@@ -174,13 +175,15 @@ function GuestbookFormInner() {
             />
           </FormField>
 
-          {/* 8. 写真アップロード（スロットのみ — 009で実装） */}
+          {/* 8. 写真アップロード */}
           <FormField label="思い出の写真" htmlFor="photos">
-            <div className="flex h-24 w-full items-center justify-center rounded-[2px] border border-dashed border-border bg-white/50">
-              <p className="text-[14px] text-[#BDBDBD]">
-                写真アップロード（準備中）
-              </p>
-            </div>
+            <p className="mb-2 text-[13px] text-sub">
+              陽介との思い出の写真があればお送りください。お棺に入れさせていただきます。
+            </p>
+            <PhotoUpload
+              photos={data.photos}
+              onChange={(files) => updateField("photos", files)}
+            />
           </FormField>
 
           {/* 送信ボタン */}
