@@ -44,7 +44,7 @@ export function GoogleMap() {
         </div>
       )}
 
-      <div className="mt-6 text-center">
+      <div className="mt-[34px] text-center">
         <a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer">
           <Button variant="secondary" type="button">
             地図を開く

@@ -15,7 +15,7 @@ export function FormField({ label, htmlFor, required, error, children }: Props) 
     <div className="mb-6">
       <label
         htmlFor={htmlFor}
-        className="mb-2 block font-mincho text-[14px] font-light tracking-[0.02em] text-text"
+        className="mb-2 block font-mincho text-[14px] font-bold tracking-[0.02em] text-[#141111]"
       >
         {label}
         {required && (

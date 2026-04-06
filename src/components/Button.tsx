@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  useRef,
-  useCallback,
   type ReactNode,
   type ButtonHTMLAttributes,
 } from "react";
@@ -21,39 +19,12 @@ export function Button({
   className = "",
   ...rest
 }: Props) {
-  const svgRef = useRef<SVGRectElement>(null);
-
-  const animateBorder = useCallback(
-    (reverse: boolean) => {
-      const rect = svgRef.current;
-      if (!rect || variant === "ghost") return;
-
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReducedMotion) return;
-
-      rect.animate(
-        [
-          { strokeDashoffset: reverse ? "0" : "100%" },
-          { strokeDashoffset: reverse ? "100%" : "0" },
-        ],
-        {
-          duration: 400,
-          easing: "ease-in-out",
-          fill: "forwards",
-        }
-      );
-    },
-    [variant]
-  );
-
   if (variant === "ghost") {
     return (
       <button
         disabled={disabled}
         className={`
-          group relative inline-flex h-12 items-center
+          group relative inline-flex items-center
           font-mincho text-[14px] font-light tracking-[0.05em]
           text-sub
           transition-colors duration-200
@@ -66,76 +37,37 @@ export function Button({
       >
         <span className="relative">
           {children}
-          <span
-            className="absolute -bottom-0.5 left-0 h-px w-full bg-current transition-all duration-200 group-hover:h-0.5 group-active:h-0.5"
-          />
+          <span className="absolute -bottom-0.5 left-0 h-px w-full bg-current transition-all duration-200 group-hover:h-0.5 group-active:h-0.5" />
         </span>
       </button>
     );
   }
 
-  const variantStyles: Record<Exclude<Variant, "ghost">, {
-    base: string;
-    active: string;
-    borderColor: string;
-  }> = {
-    primary: {
-      base: "bg-pressed/15 border-pressed text-text",
-      active: "active:bg-pressed active:text-white",
-      borderColor: "#a06a8c",
-    },
-    secondary: {
-      base: "bg-transparent border-text text-text",
-      active: "active:bg-text/[0.08]",
-      borderColor: "#484848",
-    },
-  };
-
-  const styles = variantStyles[variant];
+  const isPrimary = variant === "primary";
 
   return (
     <button
       disabled={disabled}
       className={`
-        group relative inline-flex h-12 items-center justify-center gap-3
-        rounded-[2px] border px-7
-        font-mincho text-[14px] font-light tracking-[0.05em]
-        transition-all duration-300
-        ${styles.base}
-        ${styles.active}
+        group relative inline-flex w-[65%] items-center justify-center
+        border px-5 py-[15px]
+        font-mincho text-[14px] font-light tracking-[0.05em] text-text
+        transition-all duration-100
+        active:translate-x-[7px] active:translate-y-[7px]
         disabled:cursor-not-allowed disabled:opacity-35
         focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pressed
+        before:absolute before:-bottom-[7px] before:-right-[7px] before:h-px before:w-full before:transition-all before:duration-100
+        after:absolute after:-bottom-[7px] after:-right-[7px] after:h-full after:w-px after:transition-all after:duration-100
+        active:before:h-0 active:after:w-0
+        ${isPrimary
+          ? "border-pressed before:bg-pressed after:bg-pressed"
+          : "border-text before:bg-text after:bg-text"
+        }
         ${className}
       `}
-      onPointerDown={() => animateBorder(false)}
-      onPointerUp={() => animateBorder(true)}
-      onPointerLeave={() => animateBorder(true)}
       {...rest}
     >
-      {/* SVG border animation overlay */}
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        aria-hidden="true"
-      >
-        <rect
-          ref={svgRef}
-          x="0.5"
-          y="0.5"
-          width="calc(100% - 1px)"
-          height="calc(100% - 1px)"
-          rx="2"
-          ry="2"
-          fill="none"
-          stroke={styles.borderColor}
-          strokeWidth="2"
-          strokeDasharray="100%"
-          strokeDashoffset="100%"
-        />
-      </svg>
       <span>{children}</span>
-      <span className="text-[10px] leading-none" aria-hidden="true">
-        ▶
-      </span>
     </button>
   );
 }

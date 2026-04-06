@@ -24,7 +24,7 @@
 
 ### MessageCard コンポーネント
 
-- [ ] カードスタイル: BG `#FAFAFA` / 2px radius / 24px padding / 1px border `#E5E5E5` / シャドウなし
+- [ ] カードスタイル: BG `#FAFAFA` / 2px radius / 24px padding / 1px border `#88316c` / シャドウなし
 - [ ] 表示項目: 名前、関係、あだ名、メッセージ、写真サムネイル
 - [ ] カード間ギャップ: 16px
 

@@ -26,10 +26,5 @@
 
 ### OGP 画像
 
-- [ ] OGP 画像の作成または用意（推奨サイズ: 1200x630px）
+- [ ] OGP 画像の作成または用意（推奨サイズ: 1200x1200px）
 - [ ] `public/og-image.png` として配置
-
-### サイト QR コード
-
-- [ ] サイト URL（`https://yosuke-kiddy.com`）の QR コード生成
-- [ ] `public/qr-site.png` として配置

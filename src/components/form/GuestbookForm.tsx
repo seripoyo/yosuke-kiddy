@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import Image from "next/image";
 import { SectionHeading } from "../SectionHeading";
 import { FadeInOnScroll } from "../FadeInOnScroll";
 import { Button } from "../Button";
@@ -13,7 +15,7 @@ import { ATTENDANCE_OPTIONS } from "./types";
 
 function FormClosed() {
   return (
-    <section className="mx-auto max-w-[800px] px-5 py-20">
+    <section className="mx-auto max-w-[800px] px-5 pt-[35px] pb-[30px]">
       <SectionHeading enTitle="MESSAGE" jpTitle="ご記帳" />
       <div className="mx-auto max-w-[600px] rounded-[2px] border border-border bg-white/50 px-5 py-8 text-center">
         <p className="font-mincho text-[16px] text-text">
@@ -48,11 +50,21 @@ function GuestbookFormInner() {
     handleSubmit,
   } = useFormState();
 
-  // 送信完了時は完了画面を表示（チケット012で実装予定、ここではシンプル表示）
+  // 戻るボタンでフォーム二重送信を防止
+  useEffect(() => {
+    if (!isSubmitted) return;
+    window.history.pushState(null, "", window.location.href);
+    const onPopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [isSubmitted]);
+
   if (isSubmitted) {
     return (
-      <section className="mx-auto max-w-[800px] px-5 py-20">
-        <div className="mx-auto max-w-[600px] text-center">
+      <section className="mx-auto max-w-[800px] px-5 pt-[35px] pb-[30px]">
+        <div className="mx-auto max-w-[600px] animate-fade-in text-center">
           <div className="rounded-[2px] border border-success bg-success/10 px-5 py-8">
             <p className="font-klee text-[18px] font-semibold text-text">
               ご記帳ありがとうございます。
@@ -60,22 +72,45 @@ function GuestbookFormInner() {
             <p className="mt-2 font-klee text-[16px] text-text">
               陽介もきっと喜んでいます。
             </p>
-            {showLineQR && (
-              <div className="mt-6">
-                <p className="text-[14px] text-sub">
-                  自宅の場所はLINEでお伝えします。
-                </p>
-                {/* LINE QR / リンクはチケット012で実装 */}
-              </div>
-            )}
           </div>
+
+          {showLineQR && (
+            <div className="mt-8 animate-fade-in [animation-delay:300ms]">
+              <p className="font-klee text-[15px] text-text">
+                自宅の場所は LINE でお伝えします。
+              </p>
+              <p className="mt-1 text-[13px] text-sub">
+                以下より友だち追加のうえ、お名前をお送りください。
+              </p>
+              <div className="mt-5 inline-block overflow-hidden rounded-[4px] border border-border">
+                <Image
+                  src="/qr-line.png"
+                  alt="LINE 友だち追加 QR コード"
+                  width={180}
+                  height={180}
+                  className="block"
+                />
+              </div>
+              <div className="mt-5">
+                <a
+                  href={process.env.NEXT_PUBLIC_LINE_ADD_URL ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="primary" type="button">
+                    LINE で友だち追加する
+                  </Button>
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     );
   }
 
   return (
-    <section className="mx-auto max-w-[800px] px-5 py-20">
+    <section className="mx-auto max-w-[800px] px-5 pt-[35px] pb-[30px]">
       <FadeInOnScroll variant="fade">
         <SectionHeading enTitle="MESSAGE" jpTitle="ご記帳" />
       </FadeInOnScroll>
@@ -170,7 +205,7 @@ function GuestbookFormInner() {
               id="message"
               value={data.message}
               onChange={(e) => updateField("message", e.target.value)}
-              className="min-h-[160px] w-full resize-y rounded-[2px] border border-border px-4 py-3 font-mincho text-[16px] text-text outline-none transition-colors placeholder:text-[#BDBDBD] focus:border-pressed"
+              className="min-h-[160px] w-full resize-y rounded-[2px] border border-border px-4 pt-3 pb-6 font-mincho text-[16px] text-text outline-none transition-colors placeholder:text-[#BDBDBD] focus:border-pressed"
               placeholder="メッセージを入力してください"
             />
           </FormField>
@@ -192,7 +227,7 @@ function GuestbookFormInner() {
               variant="primary"
               type="submit"
               disabled={isSubmitting}
-              className="w-full"
+              className=""
             >
               {isSubmitting ? "送信しています..." : "送信する"}
             </Button>

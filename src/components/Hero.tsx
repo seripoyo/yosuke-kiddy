@@ -1,34 +1,60 @@
-import Image from "next/image";
+"use client";
+
+import { useCallback } from "react";
 import { HeroPhoto } from "./HeroPhoto";
 
 export function Hero() {
-  return (
-    <section className="relative w-screen overflow-hidden" style={{ height: "100svh" }}>
-      {/* Background photo with reduced opacity */}
-      <HeroPhoto />
+  const scrollToNext = useCallback(() => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: "smooth",
+    });
+  }, []);
 
-      {/* Vertical text overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
+  return (
+    <section
+      className="relative flex w-screen overflow-hidden bg-base"
+      style={{ height: "100svh" }}
+    >
+      {/* Left column — vertical text + triangle accent */}
+      <div className="relative flex w-[72px] shrink-0 flex-col items-center justify-end pb-8 pt-8 md:w-[30%]">
+        {/* Vertical text — bottom aligned */}
         <div
-          className="font-klee text-[24px] font-semibold leading-[2] tracking-[0.1em] text-text-heading"
+          className="flex flex-1 items-end font-klee text-[17px] font-semibold leading-[2.2] tracking-[0.08em] text-text sm:text-[18px] md:text-[24px]"
           style={{
             writingMode: "vertical-rl",
             textOrientation: "mixed",
           }}
         >
-          {/* Name - right column (renders first in vertical-rl) */}
-          <p className="ml-4">
-            伊藤
-            <br />
-            陽介
-          </p>
+          「信じられない」を受け止めて、明日も私たちは生きていく。
+        </div>
 
-          {/* Dates and English name - left column */}
-          <p className="font-cormorant text-[14px] font-normal leading-[2.4] tracking-[0.15em] text-sub">
-            1988.11.17
-            <span className="mx-1">—</span>
-            2026.04.03
-          </p>
+        {/* Downward triangle — scroll hint, tappable */}
+        <button
+          type="button"
+          onClick={scrollToNext}
+          className="mt-4 flex flex-col items-center gap-[2px] p-1"
+          aria-label="下にスクロール"
+        >
+          <svg width="14" height="12" viewBox="0 0 14 12" fill="#C2185B">
+            <polygon points="0,0 14,0 7,12" />
+          </svg>
+          <svg
+            width="14"
+            height="12"
+            viewBox="0 0 14 12"
+            fill="#C2185B"
+            className="opacity-60"
+          >
+            <polygon points="0,0 14,0 7,12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Right — photo with max-width constraint */}
+      <div className="relative min-w-0 flex-1 pt-8 pr-3 md:w-[70%] md:flex-none md:pr-0 md:pt-8">
+        <div className="relative h-full w-full overflow-hidden md:ml-0">
+          <HeroPhoto />
         </div>
       </div>
     </section>

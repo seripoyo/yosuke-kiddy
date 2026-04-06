@@ -13,7 +13,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 export function Ceremony() {
   return (
-    <section className="mx-auto max-w-[800px] px-5 py-20">
+    <section className="mx-auto max-w-[800px] px-5 pt-[35px] pb-[30px]">
       <FadeInOnScroll variant="fade">
         <SectionHeading enTitle="CEREMONY" jpTitle="式のご案内" />
       </FadeInOnScroll>

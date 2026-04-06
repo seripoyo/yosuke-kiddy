@@ -5,6 +5,7 @@ import {
   Ceremony,
   IncenseInfo,
   GuestbookForm,
+  Footer,
 } from "@/components";
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
       <IncenseInfo />
       <IchimatsuDivider />
       <GuestbookForm />
+      <Footer />
     </>
   );
 }

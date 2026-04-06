@@ -4,15 +4,15 @@ import Image from "next/image";
 import { useState } from "react";
 
 const photos = [
-  { src: "/photos/about-1.jpg", alt: "陽介さんの思い出の写真 1" },
-  { src: "/photos/about-2.jpg", alt: "陽介さんの思い出の写真 2" },
-  { src: "/photos/about-3.jpg", alt: "陽介さんの思い出の写真 3" },
+  { src: "/photos/about-1.webp", alt: "陽介さんの思い出の写真 1" },
+  { src: "/photos/about-2.webp", alt: "陽介さんの思い出の写真 2" },
+  { src: "/photos/about-3.webp", alt: "陽介さんの思い出の写真 3" },
 ];
 
 // petit-pas style: scattered layout with slight rotations
 const layouts = [
-  { width: "75%", marginLeft: "0", rotate: "-1.5deg", zIndex: 3 },
-  { width: "55%", marginLeft: "40%", rotate: "1.2deg", zIndex: 2, marginTop: "-24px" },
+  { width: "75%", marginLeft: "0", rotate: "-1.5deg", zIndex: 2 },
+  { width: "55%", marginLeft: "40%", rotate: "1.2deg", zIndex: 3, marginTop: "-24px" },
   { width: "60%", marginLeft: "5%", rotate: "-0.8deg", zIndex: 1, marginTop: "-16px" },
 ];
 

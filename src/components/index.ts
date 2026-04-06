@@ -7,3 +7,4 @@ export { About } from "./About";
 export { Ceremony } from "./Ceremony";
 export { IncenseInfo } from "./IncenseInfo";
 export { GuestbookForm } from "./form";
+export { Footer } from "./Footer";

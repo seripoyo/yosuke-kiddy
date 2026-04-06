@@ -9,7 +9,7 @@ export function HeroPhoto() {
   if (hasError) {
     return (
       <div
-        className="absolute inset-0 bg-[#F5F5F5]"
+        className="absolute inset-0 bg-[#1A1A1A]"
         aria-hidden="true"
       >
         <div className="flex h-full items-center justify-center">
@@ -18,7 +18,7 @@ export function HeroPhoto() {
             height="48"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#BDBDBD"
+            stroke="#636363"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -35,12 +35,12 @@ export function HeroPhoto() {
 
   return (
     <Image
-      src="/photos/hero.jpg"
-      alt="伊藤陽介さんの写真"
+      src="/photos/fv.png"
+      alt="ワインセラー — 陽介さんがソムリエとして愛した世界"
       fill
       priority
       quality={85}
-      className="object-cover opacity-20"
+      className="object-cover"
       onError={() => setHasError(true)}
     />
   );
