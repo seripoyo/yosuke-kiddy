@@ -37,6 +37,39 @@ async function fetchAddressFromZipcode(
   }
 }
 
+/** Load Google Maps JS API with loading=async */
+function loadGoogleMapsScript(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof google !== "undefined" && google.maps) {
+      resolve();
+      return;
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      resolve();
+      return;
+    }
+
+    const existing = document.querySelector(
+      'script[src*="maps.googleapis.com"]'
+    );
+    if (existing) {
+      existing.addEventListener("load", () => resolve());
+      // Already loaded but google not defined yet? Wait for it
+      if (typeof google !== "undefined" && google.maps) resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&language=ja`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+}
+
 export function AddressAutocomplete({
   postalCode,
   address,
@@ -47,69 +80,98 @@ export function AddressAutocomplete({
   postalCodeError,
   addressError,
 }: Props) {
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteContainerRef = useRef<HTMLDivElement>(null);
+  const autocompleteElementRef =
+    useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
   const isInitializedRef = useRef(false);
   const zipcloudStatusRef = useRef<"idle" | "loading" | "error">("idle");
+  const onAddressChangeRef = useRef(onAddressChange);
+  onAddressChangeRef.current = onAddressChange;
 
-  // Initialize Google Places Autocomplete
-  const initAutocomplete = useCallback(() => {
-    const input = addressInputRef.current;
-    if (
-      !input ||
-      isInitializedRef.current ||
-      typeof google === "undefined" ||
-      !google.maps?.places
-    )
-      return;
-
-    autocompleteRef.current = new google.maps.places.Autocomplete(input, {
-      componentRestrictions: { country: "jp" },
-      types: ["address"],
-      fields: ["formatted_address", "address_components"],
-    });
-
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current?.getPlace();
-      if (place?.formatted_address) {
-        // Remove "日本、" prefix and postal code if present
-        let formatted = place.formatted_address
-          .replace(/^日本、?\s*/, "")
-          .replace(/^〒?\d{3}-?\d{4}\s*/, "");
-        onAddressChange(formatted);
-      }
-    });
-
-    isInitializedRef.current = true;
-  }, [onAddressChange]);
-
-  // Load Google Maps script
+  // Initialize PlaceAutocompleteElement (new API)
   useEffect(() => {
+    if (isInitializedRef.current) return;
+
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return;
 
-    // Check if already loaded
-    if (typeof google !== "undefined" && google.maps?.places) {
-      initAutocomplete();
-      return;
-    }
+    let cancelled = false;
 
-    // Check if script is already loading
-    const existingScript = document.querySelector(
-      'script[src*="maps.googleapis.com"]'
-    );
-    if (existingScript) {
-      existingScript.addEventListener("load", initAutocomplete);
-      return;
-    }
+    (async () => {
+      await loadGoogleMapsScript();
+      if (cancelled) return;
 
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=ja`;
-    script.async = true;
-    script.defer = true;
-    script.onload = initAutocomplete;
-    document.head.appendChild(script);
-  }, [initAutocomplete]);
+      try {
+        await google.maps.importLibrary("places");
+      } catch {
+        return;
+      }
+      if (cancelled || isInitializedRef.current) return;
+
+      const container = autocompleteContainerRef.current;
+      if (!container) return;
+
+      const autocomplete =
+        new google.maps.places.PlaceAutocompleteElement({
+          componentRestrictions: { country: "jp" },
+          types: ["address"],
+          requestedLanguage: "ja",
+        });
+
+      // Style the web component to match our design
+      autocomplete.style.width = "100%";
+      autocomplete.setAttribute("placeholder", "番地を入力すると候補が表示されます");
+
+      autocomplete.addEventListener(
+        "gmp-placeselect",
+        async (e) => {
+          const event =
+            e as google.maps.places.PlaceAutocompletePlaceSelectEvent;
+          const place = event.place;
+          try {
+            await place.fetchFields({
+              fields: ["formattedAddress", "addressComponents"],
+            });
+          } catch {
+            return;
+          }
+
+          if (place.formattedAddress) {
+            // Remove "日本、" prefix and postal code
+            const formatted = place.formattedAddress
+              .replace(/^日本、?\s*/, "")
+              .replace(/^〒?\d{3}-?\d{4}\s*/, "");
+            onAddressChangeRef.current(formatted);
+          }
+        }
+      );
+
+      container.appendChild(autocomplete);
+      autocompleteElementRef.current = autocomplete;
+      isInitializedRef.current = true;
+
+      // If address already has a value, set it on the input
+      if (address) {
+        const input = autocomplete.querySelector("input");
+        if (input) input.value = address;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync address value to the PlaceAutocompleteElement's inner input
+  useEffect(() => {
+    const el = autocompleteElementRef.current;
+    if (!el) return;
+    const input = el.querySelector("input");
+    if (input && input.value !== address) {
+      input.value = address;
+    }
+  }, [address]);
 
   // Auto-fetch address when postal code is complete (7 digits)
   const handlePostalCodeChange = useCallback(
@@ -124,15 +186,18 @@ export function AddressAutocomplete({
           zipcloudStatusRef.current = "idle";
           onAddressChange(result);
 
-          // Focus address input and trigger autocomplete
-          setTimeout(() => {
-            const input = addressInputRef.current;
+          // Also set it on the PlaceAutocompleteElement input for continued typing
+          const el = autocompleteElementRef.current;
+          if (el) {
+            const input = el.querySelector("input");
             if (input) {
-              input.focus();
-              // Trigger Google Places by dispatching input event
-              input.dispatchEvent(new Event("input", { bubbles: true }));
+              input.value = result;
+              setTimeout(() => {
+                input.focus();
+                input.setSelectionRange(result.length, result.length);
+              }, 150);
             }
-          }, 100);
+          }
         } else {
           zipcloudStatusRef.current = "error";
         }
@@ -140,6 +205,22 @@ export function AddressAutocomplete({
     },
     [onPostalCodeChange, onAddressChange]
   );
+
+  // Sync PlaceAutocompleteElement input back to React state on blur
+  useEffect(() => {
+    const el = autocompleteElementRef.current;
+    if (!el) return;
+
+    const handleBlur = () => {
+      const input = el.querySelector("input");
+      if (input) {
+        onAddressChangeRef.current(input.value);
+      }
+    };
+
+    el.addEventListener("blur", handleBlur, true);
+    return () => el.removeEventListener("blur", handleBlur, true);
+  }, []);
 
   return (
     <>
@@ -167,12 +248,23 @@ export function AddressAutocomplete({
         required
         error={addressError}
       >
-        <AddressInput
-          ref={addressInputRef}
-          value={address}
-          onChange={onAddressChange}
-          hasError={!!addressError}
+        <div
+          ref={autocompleteContainerRef}
+          className="address-autocomplete-container"
         />
+        {/* Fallback: show a regular input if Google Maps is not available */}
+        {!isInitializedRef.current && (
+          <TextInput
+            id="address"
+            value={address}
+            onChange={onAddressChange}
+            placeholder="住所を入力してください"
+            hasError={!!addressError}
+          />
+        )}
+        <p className="mt-1 text-[12px] text-sub">
+          番地を入力すると候補が表示されます
+        </p>
       </FormField>
 
       <FormField label="建物名・部屋番号" htmlFor="building">
@@ -186,30 +278,3 @@ export function AddressAutocomplete({
     </>
   );
 }
-
-// Separate component for address input to support ref forwarding
-import { forwardRef } from "react";
-
-const AddressInput = forwardRef<
-  HTMLInputElement,
-  { value: string; onChange: (v: string) => void; hasError?: boolean }
->(function AddressInput({ value, onChange, hasError }, ref) {
-  return (
-    <input
-      ref={ref}
-      id="address"
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="住所を入力してください"
-      className={`
-        h-12 w-full rounded-[2px] border px-4 py-3
-        font-mincho text-[16px] text-text
-        outline-none transition-colors
-        placeholder:text-[#BDBDBD]
-        focus:border-pressed
-        ${hasError ? "border-[#C62828]" : "border-border"}
-      `}
-    />
-  );
-});
