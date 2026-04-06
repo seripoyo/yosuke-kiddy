@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { NotionMessage } from "@/lib/notion";
 import { MessageCard } from "./MessageCard";
 import { Button } from "../Button";
@@ -9,6 +9,10 @@ export function MessageList() {
   const [messages, setMessages] = useState<NotionMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const handleDelete = useCallback((id: string) => {
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -61,7 +65,7 @@ export function MessageList() {
         {messages
           .filter((msg) => msg.name && (msg.relation || msg.message || msg.photoUrls.length > 0))
           .map((msg) => (
-            <MessageCard key={msg.id} msg={msg} />
+            <MessageCard key={msg.id} msg={msg} onDelete={handleDelete} />
           ))}
       </div>
 

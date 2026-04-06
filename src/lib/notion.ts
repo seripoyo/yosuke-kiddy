@@ -112,6 +112,13 @@ export async function createGuestbookEntry(
   return page.id;
 }
 
+export async function deleteGuestbookEntry(pageId: string): Promise<void> {
+  await getNotion().pages.update({
+    page_id: pageId,
+    archived: true,
+  });
+}
+
 export type NotionMessage = {
   id: string;
   name: string;

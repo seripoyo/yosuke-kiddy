@@ -194,7 +194,7 @@ function GuestbookFormInner() {
           </FormField>
 
           {/* 6. あだ名 */}
-          <FormField label="本人から呼ばれていたあだ名" htmlFor="nickname">
+          <FormField label="陽介から呼ばれていた愛称・呼び名" htmlFor="nickname">
             <TextInput
               id="nickname"
               value={data.nickname}
@@ -213,7 +213,7 @@ function GuestbookFormInner() {
               value={data.message}
               onChange={(e) => updateField("message", e.target.value)}
               className="min-h-[160px] w-full resize-y rounded-[2px] border border-border px-4 pt-3 pb-6 font-mincho text-[16px] text-text outline-none transition-colors placeholder:text-[#BDBDBD] focus:border-pressed"
-              placeholder="メッセージを入力してください"
+              placeholder="本人と普段話していたような口調で問題ございません。どうぞ、本人に言いたいこと、思ってること、思い出などを自由にご記入ください。"
             />
           </FormField>
 
