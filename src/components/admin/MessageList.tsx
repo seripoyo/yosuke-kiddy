@@ -18,11 +18,14 @@ export function MessageList() {
     async function load() {
       try {
         const res = await fetch("/api/admin/messages");
-        if (!res.ok) throw new Error("Fetch failed");
         const data = await res.json();
+        if (!res.ok)
+          throw new Error(data.detail ?? data.error ?? "Fetch failed");
         setMessages(data.messages ?? []);
-      } catch {
-        setError("メッセージの取得に失敗しました。");
+      } catch (e) {
+        setError(
+          e instanceof Error ? e.message : "メッセージの取得に失敗しました。"
+        );
       } finally {
         setIsLoading(false);
       }

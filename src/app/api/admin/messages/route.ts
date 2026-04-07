@@ -60,8 +60,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ messages });
   } catch (err) {
     console.error("Failed to fetch messages:", err);
+    const detail =
+      err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: "メッセージの取得に失敗しました。" },
+      { error: "メッセージの取得に失敗しました。", detail },
       { status: 500 }
     );
   }
