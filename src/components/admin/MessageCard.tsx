@@ -42,22 +42,22 @@ export function MessageCard({
       </button>
 
       <div className="flex items-baseline gap-3 pr-6">
-        <h3 className="font-klee text-[16px] font-semibold text-text">
+        <h3 className="font-klee text-[16px] font-semibold text-[#51514e]">
           {msg.name}
         </h3>
         {msg.nickname && (
-          <span className="text-[13px] text-sub">({msg.nickname})</span>
+          <span className="text-[13px] text-[#51514e]">({msg.nickname})</span>
         )}
       </div>
 
       {msg.relation && (
-        <p className="mt-2 text-[13px] text-sub">
+        <p className="mt-2 text-[13px] text-[#51514e]">
           関係: {msg.relation}
         </p>
       )}
 
       {msg.message && (
-        <p className="mt-3 whitespace-pre-wrap font-mincho text-[14px] leading-[1.9] text-text">
+        <p className="mt-3 whitespace-pre-wrap font-mincho text-[14px] leading-[1.9] text-[#51514e]">
           {msg.message}
         </p>
       )}

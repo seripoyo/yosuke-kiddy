@@ -66,7 +66,7 @@ export function MessageList() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {messages
-          .filter((msg) => msg.name && (msg.relation || msg.message || msg.photoUrls.length > 0))
+          .filter((msg) => msg.name && msg.message)
           .map((msg) => (
             <MessageCard key={msg.id} msg={msg} onDelete={handleDelete} />
           ))}

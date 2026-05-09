@@ -15,10 +15,6 @@ function getDatabaseId(): string {
   return id;
 }
 
-function getDataSourceId(): string {
-  // SDK v5 uses a separate data_source_id for queries
-  return process.env.NOTION_DATA_SOURCE_ID ?? getDatabaseId();
-}
 
 type GuestbookEntry = {
   name: string;
@@ -139,20 +135,52 @@ function extractPlainText(
   return richText.map((t) => t.plain_text).join("");
 }
 
+async function queryDatabase(
+  databaseId: string,
+  startCursor?: string
+): Promise<{ results: unknown[]; has_more: boolean; next_cursor: string | null }> {
+  const body: Record<string, unknown> = {
+    sorts: [{ property: "送信日", direction: "descending" }],
+  };
+  if (startCursor) body.start_cursor = startCursor;
+
+  const res = await fetch(
+    `https://api.notion.com/v1/databases/${databaseId}/query`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NOTION_API_KEY}`,
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(
+      (err as { message?: string }).message ?? `Notion API error ${res.status}`
+    );
+  }
+  return res.json() as Promise<{
+    results: unknown[];
+    has_more: boolean;
+    next_cursor: string | null;
+  }>;
+}
+
 export async function fetchAllMessages(): Promise<NotionMessage[]> {
   const messages: NotionMessage[] = [];
   let cursor: string | undefined;
+  const dbId = getDatabaseId();
 
   do {
-    const response = await getNotion().dataSources.query({
-      data_source_id: getDataSourceId(),
-      sorts: [{ property: "送信日", direction: "descending" }],
-      start_cursor: cursor,
-    });
+    const response = await queryDatabase(dbId, cursor);
 
-    for (const page of response.results) {
-      if (!("properties" in page)) continue;
-      const props = page.properties as Record<string, Record<string, unknown>>;
+    for (const item of response.results) {
+      const page = item as { id: string; properties: Record<string, Record<string, unknown>> };
+      if (!page.properties) continue;
+      const props = page.properties;
 
       const titleProp = props["ご芳名"] as {
         title?: { plain_text: string }[];
